@@ -9,8 +9,8 @@ import {
   Trash2,
   Pencil,
   Gift,
-  Coins,
   ExternalLink,
+  AlertTriangle,
 } from "lucide-react";
 
 const categories = [
@@ -61,6 +61,10 @@ export default function App() {
   const [category, setCategory] = useState("อาหาร");
   const [expenses, setExpenses] = useState([]);
   const [dealFilter, setDealFilter] = useState("ทรูลดแรง");
+  const [showPayNextAlert, setShowPayNextAlert] = useState(false);
+  const [payNextTier, setPayNextTier] = useState(null);
+  const [todaySpentAmount, setTodaySpentAmount] = useState(0);
+
   const filteredDealProducts = trueDealProducts.filter(
     (product) => product.type === dealFilter
   );
@@ -95,6 +99,14 @@ export default function App() {
 
   const dailyTarget = budget ? Math.round(Number(budget) / 30) : 0;
 
+  const getTodaySpent = (list) => {
+    const today = new Date().toLocaleDateString("th-TH");
+
+    return list
+      .filter((item) => item.date === today)
+      .reduce((sum, item) => sum + item.amount, 0);
+  };
+
   const addExpense = () => {
     if (!amount || Number(amount) <= 0) return;
 
@@ -105,8 +117,26 @@ export default function App() {
       date: new Date().toLocaleDateString("th-TH"),
     };
 
-    setExpenses([newExpense, ...expenses]);
+    const updatedExpenses = [newExpense, ...expenses];
+    setExpenses(updatedExpenses);
     setAmount("");
+
+    const todaySpent = getTodaySpent(updatedExpenses);
+    setTodaySpentAmount(todaySpent);
+
+    if (dailyTarget > 0) {
+      const todayPercent = (todaySpent / dailyTarget) * 100;
+
+      if (todayPercent >= 80 && todayPercent <= 100) {
+        setPayNextTier("warning");
+        setShowPayNextAlert(true);
+      }
+
+      if (todayPercent > 100) {
+        setPayNextTier("over");
+        setShowPayNextAlert(true);
+      }
+    }
   };
 
   const saveBudget = () => {
@@ -130,26 +160,6 @@ export default function App() {
     setTempBudget("");
     setShowBudgetModal(true);
   };
-
-  const topCategory = useMemo(() => {
-    const grouped = {};
-
-    expenses.forEach((e) => {
-      grouped[e.category] = (grouped[e.category] || 0) + e.amount;
-    });
-
-    let max = 0;
-    let top = "-";
-
-    Object.keys(grouped).forEach((key) => {
-      if (grouped[key] > max) {
-        max = grouped[key];
-        top = key;
-      }
-    });
-
-    return top;
-  }, [expenses]);
 
   const getCategoryIcon = (cat) => {
     const found = categories.find((c) => c.name === cat);
@@ -236,6 +246,7 @@ export default function App() {
               <Gift className="w-5 h-5" />
             </div>
           </div>
+
           <div className="mt-4 grid grid-cols-2 gap-3">
             {["ทรูลดแรง", "แลก Coin"].map((type) => (
               <button
@@ -251,6 +262,7 @@ export default function App() {
               </button>
             ))}
           </div>
+
           <div className="mt-4 flex gap-3 overflow-x-auto pb-2 snap-x">
             {filteredDealProducts.map((product) => (
               <div
@@ -296,29 +308,6 @@ export default function App() {
             <ExternalLink className="w-4 h-4" />
           </a>
         </div>
-
-        {/* <div className="bg-white rounded-3xl p-5 shadow-sm">
-          <h2 className="font-bold text-lg">วิเคราะห์การใช้เงิน</h2>
-
-          <div className="mt-4 space-y-3">
-            <div className="bg-orange-50 p-4 rounded-2xl">
-              <p className="text-sm text-gray-500">ใช้เยอะที่สุด</p>
-              <p className="font-bold text-xl mt-1">{topCategory}</p>
-            </div>
-
-            <div className="bg-red-50 p-4 rounded-2xl">
-              <p className="font-semibold">
-                {percentage >= 80
-                  ? "คุณใช้เงินใกล้ถึงลิมิตแล้ว ลองลดรายจ่ายที่ไม่จำเป็น"
-                  : "ยังควบคุมงบได้ดีอยู่ 🎉"}
-              </p>
-            </div>
-
-            <button className="w-full h-12 rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold">
-              ดูวิธีประหยัดเพิ่ม
-            </button>
-          </div>
-        </div> */}
 
         <div className="bg-white rounded-3xl p-5 shadow-sm">
           <h2 className="font-bold text-lg">เพิ่มรายจ่าย</h2>
@@ -396,6 +385,54 @@ export default function App() {
           </div>
         </div>
       </div>
+
+      {showPayNextAlert && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center px-5 z-50">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-xl">
+            <div className="w-12 h-12 rounded-2xl bg-orange-100 flex items-center justify-center text-orange-500">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+
+            <h2 className="text-xl font-bold mt-4">
+              {payNextTier === "warning"
+                ? "เริ่มตึงมือแล้ว"
+                : "เกินเป้าที่ตั้งไว้แล้ว"}
+            </h2>
+
+            <p className="text-gray-500 mt-2">
+              วันนี้ใช้ไปแล้ว{" "}
+              <span className="font-bold text-red-500">
+                ฿{todaySpentAmount.toLocaleString()}
+              </span>{" "}
+              จากเป้าต่อวัน{" "}
+              <span className="font-bold text-gray-800">
+                ฿{dailyTarget.toLocaleString()}
+              </span>
+            </p>
+
+            <p className="text-gray-500 mt-3">
+              หากยังมีรายจ่ายจำเป็นในวันนี้ อาจเลือกใช้ TrueMoney Pay Next
+              เพื่อจ่ายรายจ่ายที่เหลือในวัน
+            </p>
+
+            <a
+              href="https://www.truemoney.com/ascend-paynext/"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-5 flex h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 text-white text-lg font-bold"
+            >
+              สมัคร / ดูรายละเอียด Pay Next
+            </a>
+
+            <button
+              onClick={() => setShowPayNextAlert(false)}
+              className="mt-3 w-full h-12 rounded-2xl bg-gray-100 text-gray-600 font-bold"
+            >
+              ปิด
+            </button>
+          </div>
+        </div>
+      )}
 
       {showBudgetModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center px-5 z-50">
