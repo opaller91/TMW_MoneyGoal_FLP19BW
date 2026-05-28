@@ -25,31 +25,38 @@ const categories = [
 const trueDealProducts = [
   {
     type: "ทรูลดแรง",
-    name: "ชาหมักคอมบูชะ",
-    image: "https://placehold.co/160x160/orange/white?text=Drink",
-    fullPrice: 35,
-    salePrice: 25,
+    name: "เฉาก๊วยถุงบางช้าง (เดี่ยว)",
+    image: "/images/chao-kuay-bangchang.png",
+    fullPrice: 12,
+    salePrice: 9,
   },
   {
     type: "ทรูลดแรง",
-    name: "แซนด์วิชอกไก่",
-    image: "https://placehold.co/160x160/red/white?text=Food",
-    fullPrice: 39,
+    name: "บิสกิตโคอะลามาร์ช รสช็อกโกแลต 37 กรัม",
+    image: "/images/koala-march-chocolate.png",
+    fullPrice: 23,
+    salePrice: 19,
+  },
+  {
+    type: "ทรูลดแรง",
+    name: "บีทาเก้น ชาหมักคอมบูชะ ออริจินัล 200 มล. 2 ชิ้น",
+    image: "/images/betagro-kombucha.png",
+    fullPrice: 30,
+    salePrice: 19,
+  },
+  {
+    type: "ทรูลดแรง",
+    name: "แร๊พเอ็นโรลไก่ทอด Alfredo",
+    image: "/images/wrap-n-roll-alfredo.png",
+    fullPrice: 35,
     salePrice: 29,
   },
   {
-    type: "แลก Coin",
-    name: "น้ำดื่ม 600 มล.",
-    image: "https://placehold.co/160x160/blue/white?text=Water",
-    fullPrice: 10,
-    salePrice: 1,
-  },
-  {
-    type: "แลก Coin",
-    name: "กาแฟพร้อมดื่ม",
-    image: "https://placehold.co/160x160/yellow/white?text=Coffee",
-    fullPrice: 25,
-    salePrice: 15,
+    type: "ทรูลดแรง",
+    name: "แอทแทคน้ำยาซักผ้าสูตรเข้มข้น",
+    image: "/images/attack-liquid.png",
+    fullPrice: 95,
+    salePrice: 69,
   },
 ];
 
@@ -273,7 +280,7 @@ export default function App() {
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-28 object-cover rounded-xl bg-white"
+                    className="w-full h-32 object-contain rounded-xl bg-white p-2"
                   />
 
                   <span className="absolute top-2 left-2 rounded-full bg-white px-2 py-1 text-[10px] font-bold text-orange-600">
